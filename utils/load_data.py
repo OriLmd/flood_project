@@ -1,4 +1,4 @@
-#External import
+#External imports
 import cv2
 import glob
 import shutil

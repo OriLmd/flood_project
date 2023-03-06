@@ -1,4 +1,4 @@
-#External import
+#External imports
 import os
 
 # ** Script to store global params **
