@@ -3,6 +3,5 @@ train/
 data/
 Old/
 Exploration.ipynb
-utils/
-utils/__pycache__/
+*__pycache__/*
 *.ipynb
