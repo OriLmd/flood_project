@@ -4,3 +4,5 @@ data/
 Old/
 Exploration.ipynb
 utils/
+utils/__pycache__/
+*.ipynb
