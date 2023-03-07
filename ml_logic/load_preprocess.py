@@ -35,3 +35,6 @@ def prepare_images(vv_img, vh_img, wb_img, fl_img):
     wb_img = normalize(wb_img)
     fl_img = normalize(fl_img)
     return vv_img, vh_img, wb_img, fl_img
+
+def make_dict(vv_img, vh_img, wb_img, fl_img):
+    return {'vv':vv_img, 'vh':vh_img, 'wb':wb_img},fl_img
