@@ -4,7 +4,7 @@ from tensorflow import data
 
 
 #Internal import
-
+from ml_logic.load_preprocess import read_four_images, prepare_images
 
 ### Main script ###
 
@@ -22,7 +22,15 @@ def create_dataset():
 
     return dataset
 
+def load_and_preprocess_data(dataset): # Warning: dataset must be a batch - not the whole dataset
+    # Apply line by line, the methods read_four_images and prepare_images
+    dataset = dataset.map(read_four_images) # return 4 tensor arrays (256,256,1)
+    dataset = dataset.map(prepare_images) # /255 the 4 tensor arrays
+    return dataset
+
 if __name__ == '__main__':
     dataset = create_dataset()
-    # for pair in dataset.take(1):
-        # print(pair)
+    small_dataset = dataset.take(32)
+    small_dataset = load_and_preprocess_data(small_dataset)
+    for pair in small_dataset.take(1):
+        print(pair)
