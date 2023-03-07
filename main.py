@@ -6,7 +6,7 @@ from keras.layers import Concatenate
 
 
 #Internal import
-from ml_logic.load_preprocess import read_four_images, prepare_images, make_dict
+from ml_logic.load_preprocess import read_four_images, prepare_images, make_concat
 
 
 ### Main script ###
@@ -29,14 +29,9 @@ def load_and_preprocess_data(dataset): # Warning: dataset must be a batch - not 
     # Apply line by line, the methods read_four_images and prepare_images
     dataset = dataset.map(read_four_images) # return 4 tensor arrays (256,256,1)
     dataset = dataset.map(prepare_images) # /255 the 4 tensor arrays
-    dataset = dataset.map(make_dict)
+    dataset = dataset.map(make_concat)
     return dataset
 
-def layer_concat(X_dict, target): # 3 tensor array (256,256,1) as input
-    # concatenate layer: return an tensor array (256,256,3)
-    inputs = [X_dict['vv'], X_dict['vh'], X_dict['wb']]
-    x = Concatenate(axis=2)(inputs)
-    return x, target
 
 if __name__ == '__main__':
     dataset = create_dataset() # load or dataset with image paths

@@ -1,6 +1,6 @@
 #External imports
 import glob
-from tensorflow import data, io
+from tensorflow import data, io, concat
 
 #Internal import
 
@@ -36,5 +36,5 @@ def prepare_images(vv_img, vh_img, wb_img, fl_img):
     fl_img = normalize(fl_img)
     return vv_img, vh_img, wb_img, fl_img
 
-def make_dict(vv_img, vh_img, wb_img, fl_img):
-    return {'vv':vv_img, 'vh':vh_img, 'wb':wb_img},fl_img
+def make_concat(vv_img, vh_img, wb_img, fl_img):
+    return concat([vv_img,vh_img,wb_img],axis=-1),fl_img
