@@ -37,4 +37,5 @@ def prepare_images(vv_img, vh_img, wb_img, fl_img):
     return vv_img, vh_img, wb_img, fl_img
 
 def make_concat(vv_img, vh_img, wb_img, fl_img):
+    # concat
     return concat([vv_img,vh_img,wb_img],axis=-1),fl_img
