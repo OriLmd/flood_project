@@ -28,8 +28,8 @@ def decoder_block(input, skip_features, num_filters):
     return x
 
 
-
-def build_unet(input_shape):
+#initialising model
+def initialize_unet(input_shape= (256,256,3)):
     inputs = Input(input_shape)
 
     s1, p1 = encoder_block(inputs, 32)
@@ -49,7 +49,24 @@ def build_unet(input_shape):
     model = Model(inputs, outputs, name="U-Net")
     return model
 
+
+def compile_model(model, loss = 'mse'):
+
+    model.compile(optimizer='adam',
+                  loss = loss,
+                  metrics=['binary_accuracy'])
+    return model
+
+def train_model(model, dataset, batch_size = 32, epochs = 5):
+    history = model.fit(dataset.batch(batch_size), epochs = epochs)
+    return history
+
+
+
+
 if __name__ == "__main__":
     input_shape = (256, 256, 3)
-    model = build_unet(input_shape)
-    model.summary()
+    model = initialize_unet(input_shape)
+    model = compile_model(model)
+    #train_model(model,)
+    print(model.summary())
