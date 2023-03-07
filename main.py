@@ -29,7 +29,7 @@ def load_and_preprocess_data(dataset): # Warning: dataset must be a batch - not 
     # Apply line by line, the methods read_four_images and prepare_images
     dataset = dataset.map(read_four_images) # return 4 tensor arrays (256,256,1)
     dataset = dataset.map(prepare_images) # /255 the 4 tensor arrays
-    dataset = dataset.map(make_dict)
+    dataset = dataset.map(make_dict) # concat 3 inputs, return 2 tensor arrays (256,256,3) and (256,256,1)
     return dataset
 
 def layer_concat(X_dict, target): # 3 tensor array (256,256,1) as input
