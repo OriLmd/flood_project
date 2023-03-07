@@ -1,5 +1,5 @@
 # Basic data vis and analysis
-# cv2
+# cv2 # vérifier si on en a besoin
 ipdb
 jupyterlab
 matplotlib
