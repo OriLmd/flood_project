@@ -67,17 +67,16 @@ def compile_model(model, loss = 'mse'):
 #function fit_model follows le wagon format and fits model on dataset
 
 
-def fit_model(model, dataset, batch_size= 32, epochs = 5, validation_split = 0.2, patience=3):
+def fit_model(model, dataset, validation_data, batch_size= 32, epochs = 5, patience=3):
 
     es = EarlyStopping(monitor='val_loss', patience = patience, restore_best_weights= True)
     # EarlyStopping(baseline = None) can also be changed;
     # Baseline value for the monitored quantity. Training will stop if the model doesn't show improvement over the baseline.
 
 
-    model_hist = model.fit(dataset,
+    model_hist = model.fit(dataset.batch(batch_size),
                         callbacks=[es],
-                        validation_split= validation_split,
-                        batch_size= batch_size,
+                        validation_data = validation_data.batch(batch_size),
                         epochs = epochs,
                         verbose = 1)
     return (model, model_hist)
