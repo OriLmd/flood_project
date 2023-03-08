@@ -50,36 +50,28 @@ def initialize_unet(input_shape= (256,256,3)):
     return model
 
 
-def compile_model(model, loss = 'mse'):
-
+def compile_model(model, loss, metric):
+    # compile model with specified loss and metric
     model.compile(optimizer='adam',
                   loss = loss,
-                  metrics=['binary_accuracy'])
+                  metrics=[metric])
     return model
 
-#def train_model(model, dataset, batch_size = 32, epochs = 5, validation_split = 0.2):
-#    history = model.fit(dataset.batch(batch_size), epochs = epochs, validation_split = validation_split)
-#    return model, history
-#
 
-
-#replacing function train_model with function fit_model
-#function fit_model follows le wagon format and fits model on dataset
-
-
-def fit_model(model, dataset, validation_data, batch_size= 32, epochs = 5, patience=3):
+def fit_model(model, train_dataset, val_dataset, batch_size= 32, epochs = 5, patience=3):
 
     es = EarlyStopping(monitor='val_loss', patience = patience, restore_best_weights= True)
     # EarlyStopping(baseline = None) can also be changed;
     # Baseline value for the monitored quantity. Training will stop if the model doesn't show improvement over the baseline.
 
 
-    model_hist = model.fit(dataset.batch(batch_size),
+    history = model.fit(train_dataset.batch(batch_size),
                         callbacks=[es],
-                        validation_data = validation_data.batch(batch_size),
+                        validation_data = val_dataset.batch(batch_size),
                         epochs = epochs,
                         verbose = 1)
-    return (model, model_hist)
+
+    return (model, history)
 
 
 if __name__ == "__main__":
