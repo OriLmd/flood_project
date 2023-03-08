@@ -1,7 +1,7 @@
 #External imports
 import glob
 from tensorflow import data
-#import tensorflow as tf
+import tensorflow as tf
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras.utils import split_dataset
 from tensorflow_addons.losses import SigmoidFocalCrossEntropy
@@ -51,17 +51,14 @@ def train_test_split(dataset, train_size = 0.6, test_size = 0.2, val_size = 0.2,
                                       right_size=val_size)
     return dataset_train, dataset_test, dataset_val
 
-def train_model(train_dataset, val_dataset,batch_size=16, epochs=5, patience=1):
+def train_model(train_dataset, val_dataset,metric='MeanIoU(num_classes=2)',loss='SigmoidFocalCrossEntropy(reduction = Reduction.NONE)',batch_size=16, epochs=5, patience=1):
     # Method to run model
-    # For now, run with pre-defined loss and metric - to be updated and added as an argument
 
     # 1. Initialize model
     input_shape= (256,256,3)
     model = initialize_unet(input_shape)
 
     # 2. Compile model - to be updated with loss and metric (e.g. Dice)
-    loss = SigmoidFocalCrossEntropy(reduction = Reduction.NONE)
-    metric = MeanIoU(num_classes=2)
     model = compile_model(model, loss, metric)
     model, history = fit_model(model, train_dataset, val_dataset, batch_size=batch_size, epochs=epochs, patience=patience)
 
