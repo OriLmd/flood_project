@@ -13,6 +13,11 @@ import numpy as np
 def y_true(vv_img, vh_img, wb_img, fl_img):
     return fl_img
 
+#recover y_pred from dataset
+def get_y_pred(vv_img, vh_img, wb_img, fl_img):
+    return wb_img
+
+
 #convert tensor in numpy for dice_coef compute
 def tensor_to_numpy(tensortransf):
     batchs_tensor=tensortransf.batch(4)
