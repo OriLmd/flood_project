@@ -35,14 +35,14 @@ def load_and_preprocess_data(dataset): # Warning: dataset must be a batch - not 
     return dataset
 
 
-def train_test_split(dataset, train_size = 0.6, test_size = 0.2, val_size = 0.2):
+def train_test_split(dataset, train_size = 0.6, test_size = 0.2, val_size = 0.2, seed=None):
     #splits a tensor dataset into train,test an val
     #first split into train and both = (test+val)
     #then split both into test and val
     both_size = test_size + val_size
     dataset_train, dataset_both = split_dataset(dataset,left_size=train_size,
                                       right_size=both_size,
-                                      shuffle=True,seed=18)
+                                      shuffle=True,seed=seed)
     dataset_test, dataset_val = split_dataset(dataset_both,left_size=test_size,
                                       right_size=val_size)
     return dataset_train, dataset_test, dataset_val
