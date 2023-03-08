@@ -5,23 +5,6 @@ import glob
 from tensorflow import keras
 from utils.params import *
 
-
-#insert bucket name in params
-#BUCKET_NAME = ??
-
-#insert model location - do you want to save to GCS or Local?
-#MODEL_TARGET = ??
-
-#What does the history of a model look like?
-
-#1. return history in ml_logic.main train_model
-#2. OR code in train_model
-#3.
-
-#After you have history:
-
-#metrics = history.history
-#params = history.params
 def save_results(params: dict, metrics: dict) -> None:
     """
     Persist params & metrics on Google Drive at
