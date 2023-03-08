@@ -2,10 +2,7 @@
 import glob
 from tensorflow import data, keras
 from keras.layers import Concatenate
-from tensorflow import keras
 from keras.utils import split_dataset
-from tensorflow import size
-
 
 #Internal import
 from ml_logic.load_preprocess import read_four_images, prepare_images, make_concat
