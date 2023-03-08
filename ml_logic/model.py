@@ -1,7 +1,7 @@
 from tensorflow import keras
 from keras.layers import Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate, Input
 from keras.models import Model
-
+from keras.callbacks import EarlyStopping
 
 def conv_block(input, num_filters):
     x = Conv2D(num_filters, 3, padding="same")(input)
@@ -57,11 +57,30 @@ def compile_model(model, loss = 'mse'):
                   metrics=['binary_accuracy'])
     return model
 
-def train_model(model, dataset, batch_size = 32, epochs = 5):
-    history = model.fit(dataset.batch(batch_size), epochs = epochs)
-    return history
+#def train_model(model, dataset, batch_size = 32, epochs = 5, validation_split = 0.2):
+#    history = model.fit(dataset.batch(batch_size), epochs = epochs, validation_split = validation_split)
+#    return model, history
+#
 
 
+#replacing function train_model with function fit_model
+#function fit_model follows le wagon format and fits model on dataset
+
+
+def fit_model(model, dataset, batch_size= 32, epochs = 5, validation_split = 0.2, patience=3):
+
+    es = EarlyStopping(monitor='val_loss', patience = patience, restore_best_weights= True)
+    # EarlyStopping(baseline = None) can also be changed;
+    # Baseline value for the monitored quantity. Training will stop if the model doesn't show improvement over the baseline.
+
+
+    model_hist = model.fit(dataset,
+                        callbacks=[es],
+                        validation_split= validation_split,
+                        batch_size= batch_size,
+                        epochs = epochs,
+                        verbose = 1)
+    return (model, model_hist)
 
 
 if __name__ == "__main__":

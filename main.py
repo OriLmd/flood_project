@@ -2,7 +2,9 @@
 import glob
 from tensorflow import data, keras
 from keras.layers import Concatenate
-
+from tensorflow import keras
+from keras.utils import split_dataset
+from tensorflow import size
 
 
 #Internal import
@@ -33,12 +35,21 @@ def load_and_preprocess_data(dataset): # Warning: dataset must be a batch - not 
     return dataset
 
 
+def train_test_split(dataset, train_size = 0.8, test_size = 0.2):
+    #splits a tensor dataset into train and test (validation happens in the model)
+    dataset_train, dataset_test = split_dataset(dataset,left_size=train_size,
+                                      right_size=test_size,
+                                      shuffle=True,seed=18)
+    return dataset_train, dataset_test
+
+
+
 if __name__ == '__main__':
     dataset = create_dataset() # load or dataset with image paths
     small_dataset = dataset.take(32) # take a batch - à creuser
     small_dataset = load_and_preprocess_data(small_dataset) # load and preproc batch into arrays
+    small_train, small_test = train_test_split(small_dataset)
     for pair in small_dataset.take(1):
         print(pair)
-    concat_dataset = small_dataset.map(layer_concat)
-    for pair in concat_dataset.take(1):
-        print(pair)
+    for this in small_train.take(1):
+        print(this)
