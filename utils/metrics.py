@@ -14,7 +14,7 @@ def y_true(vv_img, vh_img, wb_img, fl_img):
     return fl_img
 
 #recover y_pred from dataset
-def get_y_pred(vv_img, vh_img, wb_img, fl_img):
+def get_y_pred_baseline(vv_img, vh_img, wb_img, fl_img):
     return wb_img
 
 
