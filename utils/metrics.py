@@ -56,7 +56,7 @@ def total_error(y_true, y_pred):
 #get baseline score
 def get_baseline_score(dataset):
     y_true=smalldataset.map(get_y_true)
-    y_pred=smalldataset.map(get_y_pred)
+    y_pred=smalldataset.map(get_y_pred_baseline)
     y_true_t=tensor_to_numpy(y_true)
     y_pred_t=tensor_to_numpy(y_pred)
     baseline_score_dice=dice_coef(y_true_t, y_pred_t, smooth=1)
