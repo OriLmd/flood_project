@@ -2,8 +2,7 @@
 import glob
 from tensorflow import data, keras
 from keras.layers import Concatenate
-
-
+from keras.utils import split_dataset
 
 #Internal import
 from ml_logic.load_preprocess import read_four_images, prepare_images, make_concat
@@ -33,12 +32,26 @@ def load_and_preprocess_data(dataset): # Warning: dataset must be a batch - not 
     return dataset
 
 
+def train_test_split(dataset, train_size = 0.6, test_size = 0.2, val_size = 0.2, seed=None):
+    #splits a tensor dataset into train,test an val
+    #first split into train and both = (test+val)
+    #then split both into test and val
+    both_size = test_size + val_size
+    dataset_train, dataset_both = split_dataset(dataset,left_size=train_size,
+                                      right_size=both_size,
+                                      shuffle=True,seed=seed)
+    dataset_test, dataset_val = split_dataset(dataset_both,left_size=test_size,
+                                      right_size=val_size)
+    return dataset_train, dataset_test, dataset_val
+
+
+
 if __name__ == '__main__':
     dataset = create_dataset() # load or dataset with image paths
     small_dataset = dataset.take(32) # take a batch - à creuser
     small_dataset = load_and_preprocess_data(small_dataset) # load and preproc batch into arrays
+    small_train, small_test = train_test_split(small_dataset)
     for pair in small_dataset.take(1):
         print(pair)
-    concat_dataset = small_dataset.map(layer_concat)
-    for pair in concat_dataset.take(1):
-        print(pair)
+    for this in small_train.take(1):
+        print(this)

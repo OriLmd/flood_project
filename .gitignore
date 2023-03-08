@@ -5,3 +5,5 @@ Old/
 Exploration.ipynb
 *__pycache__/*
 *.ipynb
+*.egg-info/
+__pycache__/
