@@ -1,9 +1,15 @@
 #External imports
 import glob
-from tensorflow import data, keras
-from keras.layers import Concatenate
-from keras.utils import split_dataset
+from tensorflow import data
+#import tensorflow as tf
+from tensorflow.keras.layers import Concatenate
+from tensorflow.keras.utils import split_dataset
+from tensorflow_addons.losses import SigmoidFocalCrossEntropy
+from tensorflow.keras.metrics import MeanIoU
+
+from tensorflow.keras.losses import Reduction
 import numpy as np
+
 
 #Internal import
 from ml_logic.load_preprocess import read_four_images, prepare_images, make_concat
@@ -45,13 +51,9 @@ def train_test_split(dataset, train_size = 0.6, test_size = 0.2, val_size = 0.2,
                                       right_size=val_size)
     return dataset_train, dataset_test, dataset_val
 
-def train_model(train_dataset, val_dataset,batch_size, epochs, patience):
+def train_model(train_dataset, val_dataset,batch_size=16, epochs=5, patience=1):
     # Method to run model
     # For now, run with pre-defined loss and metric - to be updated and added as an argument
-
-    from tensorflow_addons.losses import SigmoidFocalCrossEntropy, Reduction
-    from keras.metrics import MeanIoU
-
 
     # 1. Initialize model
     input_shape= (256,256,3)
