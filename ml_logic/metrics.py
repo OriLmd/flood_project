@@ -2,6 +2,8 @@ from keras import backend as K
 import numpy as np
 import tensorflow as tf
 
+from ml_logic.load_preprocess import read_four_images
+
 #recover y_true from dataset
 def get_ytrue_for_prediction(dataset):
     # batch the dataset into a fixed batch size
@@ -92,6 +94,8 @@ class DiceLoss(tf.keras.losses.Loss):
 def get_baseline_score(dataset):
     dice=Dice()
     total_error=TotalError()
+    dataset = dataset.map(read_four_images) # return 4 tensor arrays (256,256,1)
+    dataset = dataset.map(prepare_images)
     y_true=get_ytrue_for_prediction(dataset)
     y_pred=get_ypred_for_prediction(dataset)
     baseline_score_dice=dice(y_true, y_pred)
