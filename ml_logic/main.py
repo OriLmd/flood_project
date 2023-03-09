@@ -31,6 +31,26 @@ def create_dataset():
 
     return dataset
 
+# Update the img_vv_path to match your drive directory path for colab
+def create_dataset_from_drive(drive_path_vv_png='/content/drive/MyDrive/Colab Notebooks/train/train/**/tiles/vv/*_vv.png')):
+    # to create a tf dataset with our images
+
+    # 1. create the lists of paths for each image type
+    img_vv_path = drive_path_vv_png
+    path_vvs = glob.glob(img_vv_path)
+    print(len(path_vvs))
+    path_vhs = [file.split('vv')[0] + 'vh' + file.split('vv')[1] + 'vh' + '.png' for file in path_vvs]
+    print(len(path_vhs))
+    path_wbs = [(file.split('vv')[0] + 'water_body_label' + file.split('vv')[1]).strip('_') + '.png' for file in path_vvs]
+    print(len(path_wbs))
+    path_fls = [(file.split('vv')[0] + 'flood_label' + file.split('vv')[1]).strip('_') + '.png' for file in path_vvs]
+    print(len(path_fls))
+
+    # 2. create the tf dataset
+    dataset = data.Dataset.from_tensor_slices((path_vvs, path_vhs, path_wbs, path_fls))
+    shuffle_dataset = dataset.shuffle(buffer_size=33405, seed=1234, name='shuffled_ds_1234') #if we change shuffle, need to be saved dataset.save
+    return shuffle_dataset
+
 def load_and_preprocess_data(dataset): # Warning: dataset must be a batch - not the whole dataset
     # Apply line by line, the methods read_four_images and prepare_images
     dataset = dataset.map(read_four_images) # return 4 tensor arrays (256,256,1)
