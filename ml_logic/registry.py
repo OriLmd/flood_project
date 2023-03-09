@@ -43,7 +43,7 @@ def save_results(params: dict, metrics: dict) -> None:
     print("✅ Results saved on drive")
 
 
-def save_model(model: keras.Model = None) -> None:
+def save_model(model: tensorflow.keras.Model = None) -> None:
     """
     Persist trained model locally on hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
     - if MODEL_TARGET='gcs', also persist it on your bucket on GCS at "models/{timestamp}.h5" --> unit 02 only
@@ -66,7 +66,7 @@ def save_model(model: keras.Model = None) -> None:
 
 
 #And now can also load model if needed??
-def load_model(MODEL_TARGET = "drive") -> keras.Model:
+def load_model(MODEL_TARGET = "drive") -> tensorflow.keras.Model:
     """
     Return a saved model:
     - locally (latest one in alphabetical order)
