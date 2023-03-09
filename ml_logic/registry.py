@@ -5,6 +5,10 @@ import glob
 from tensorflow import keras
 from utils.params import *
 
+#Google drive
+from google.colab import drive
+drive.mount('/content/drive')
+
 def save_results(params: dict, metrics: dict) -> None:
     """
     Persist params & metrics on Google Drive at
@@ -84,7 +88,7 @@ def load_model(MODEL_TARGET = "drive") -> keras.Model:
 
     most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
     #print(Fore.BLUE + f"\nLoad latest model from disk..." + Style.RESET_ALL)
-    lastest_model = keras.models.load_model(most_recent_model_path_on_disk)
+    latest_model = keras.models.load_model(most_recent_model_path_on_disk)
     print("✅ model loaded from google drive")
 
-    return lastest_model
+    return latest_model
