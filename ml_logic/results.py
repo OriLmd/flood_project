@@ -33,10 +33,15 @@ def split_tensor_channel(dataset):
     return vv_channel,vh_channel,wb_channel,flood_channel
 
 # Plot function
-def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions):
+def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions, threshold = 0.5):
     '''
     This function is ploting the inputs, the targets and the predictions found by the model
     '''
+
+    # Apply a threshold to the prediction and apply 0 or 1 if it's water or land
+    predictions_binary = predictions.copy()
+    predictions_binary[predictions_binary > threshold] = 0
+    predictions_binary[predictions_binary > 0] = 1
 
     # Define the fig size, the main title and the rows titles names
     fig, axes = plt.subplots(nrows=5, ncols=8, figsize=(20, 12))
@@ -49,7 +54,7 @@ def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions)
                                                     vh_channel.take(8),
                                                     wb_channel.take(8),
                                                     flood_channel.take(8),
-                                                    predictions)):
+                                                    predictions_binary)):
 
         axes[0, i].imshow(vv.numpy(), cmap='Greys')
         axes[0, i].set_xticks([])
