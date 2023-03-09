@@ -48,7 +48,7 @@ class Dice(tf.keras.metrics.Metric):
         epsilon = 1e-7
         dice = (2.0 * self.intersection + epsilon) / (self.union + epsilon)
         return tf.reduce_mean(dice)
-    def reset_states(self):
+    def reset_state(self):
         # Reset the internal state of the metric between epochs during training
         self.intersection.assign(0)
         self.union.assign(0)
@@ -70,7 +70,7 @@ class TotalError(tf.keras.metrics.Metric):
     def result(self):
          # sum of total error over all dataset
         return self.FN + self.FP
-    def reset_states(self):
+    def reset_state(self):
         #reset value after eache epoch
         self.FN.assign(0.0)
         self.FP.assign(0.0)
