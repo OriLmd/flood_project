@@ -2,7 +2,7 @@ import time
 import os
 import pickle
 import glob
-from tensorflow import keras
+from tensorflow.keras.models import load_model
 from utils.params import *
 
 def save_results(params: dict, metrics: dict) -> None:
@@ -85,7 +85,7 @@ def load_model(MODEL_TARGET = "drive") -> keras.Model:
 
     most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
     #print(Fore.BLUE + f"\nLoad latest model from disk..." + Style.RESET_ALL)
-    latest_model = keras.models.load_model(most_recent_model_path_on_disk)
+    latest_model = load_model(most_recent_model_path_on_disk)
     print("✅ model loaded from google drive")
 
     return latest_model
