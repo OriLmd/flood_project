@@ -18,7 +18,13 @@ IMAGE_LISTS_ = ['vv', 'vh', 'water_body', 'flood']
 # To copy images into new directory data
 DESTINATION_FOLDER_PATH = os.path.join(os.path.expanduser('~'), "code","OriLmd", "flood_project","data")
 
-
-#in case there is google drive change to google drive path
-# It is currently set to local path
-DRIVE_FOLDER_PATH = os.path.join(os.path.expanduser('~'), "code","OriLmd", "flood_project","data")
+#ensure the path below corresponds to your google drive path
+#you can run the following lines to get the cwd
+##import os
+##os.getcwd()
+#the output should replace "/content"
+DRIVE_FOLDER_PATH = os.path.join("/content",
+                                 "code",
+                                 "OriLmd",
+                                 "flood_project",
+                                 "input-data-for-flood")
