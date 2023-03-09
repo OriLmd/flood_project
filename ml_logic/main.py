@@ -32,7 +32,7 @@ def create_dataset():
     return dataset
 
 # Update the img_vv_path to match your drive directory path for colab
-def create_dataset_from_drive(drive_path_vv_png='/content/drive/MyDrive/Colab Notebooks/train/train/**/tiles/vv/*_vv.png')):
+def create_dataset_from_drive(drive_path_vv_png='/content/drive/MyDrive/Colab Notebooks/train/train/**/tiles/vv/*_vv.png'):
     # to create a tf dataset with our images
 
     # 1. create the lists of paths for each image type
