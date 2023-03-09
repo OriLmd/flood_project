@@ -1,4 +1,6 @@
 
+import matplotlib.pyplot as plt
+
 #these functions split the dataset for plotting
 def extract_input_parts(input_data, output_data):
     # Split the input tensor into three parts using indexing or slicing
@@ -29,3 +31,55 @@ def split_tensor_channel(dataset):
     vh_channel = input_channels.map(extract_vh)
     wb_channel = input_channels.map(extract_wb)
     return vv_channel,vh_channel,wb_channel,flood_channel
+
+# Plot function
+def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions):
+    '''
+    This function is ploting the inputs, the targets and the predictions found by the model
+    '''
+
+    # Define the fig size, the main title and the rows titles names
+    fig, axes = plt.subplots(nrows=5, ncols=8, figsize=(20, 12))
+    fig.suptitle('Inputs and Predictions', fontsize=16)
+
+    row_titles = ['VV polarization', 'VH polarization', 'Water body', 'Targets : Flood', 'Predictions : Flood']
+
+    # Ploting each image (sample of 8 different images)
+    for i, (vv, vh, wb, flood, pred) in enumerate(zip(vv_channel.take(8),
+                                                    vh_channel.take(8),
+                                                    wb_channel.take(8),
+                                                    flood_channel.take(8),
+                                                    predictions)):
+
+        axes[0, i].imshow(vv.numpy(), cmap='Greys')
+        axes[0, i].set_xticks([])
+        axes[0, i].set_yticks([])
+        axes[0, i].set_title(f'vv {i+1}', fontsize=12)
+
+        axes[1, i].imshow(vh.numpy(), cmap='Greys')
+        axes[1, i].set_xticks([])
+        axes[1, i].set_yticks([])
+        axes[1, i].set_title(f'vh {i+1}', fontsize=12)
+
+        axes[2, i].imshow(wb.numpy(), cmap='Greys')
+        axes[2, i].set_xticks([])
+        axes[2, i].set_yticks([])
+        axes[2, i].set_title(f'wb {i+1}', fontsize=12)
+
+        axes[3, i].imshow(flood.numpy(), cmap='Greys')
+        axes[3, i].set_xticks([])
+        axes[3, i].set_yticks([])
+        axes[3, i].set_title(f'Flood {i+1}', fontsize=12)
+
+        axes[4, i].imshow(pred, cmap='Greys')
+        axes[4, i].set_xticks([])
+        axes[4, i].set_yticks([])
+        axes[4, i].set_title(f'Prediction {i+1}', fontsize=12)
+
+    # Plot the rows titles
+    for i in range(5):
+        axes[i, 0].set_ylabel(row_titles[i], fontsize=14, rotation=90, labelpad=20)
+
+    # Plot the whole fig
+    plt.tight_layout()
+    plt.show()
