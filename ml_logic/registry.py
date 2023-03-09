@@ -43,11 +43,9 @@ def save_results(params: dict, metrics: dict) -> None:
     print("✅ Results saved on drive")
 
 
-def save_model(model: tensorflow.keras.Model = None) -> None:
+def save_model(model):
     """
     Persist trained model locally on hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
-    - if MODEL_TARGET='gcs', also persist it on your bucket on GCS at "models/{timestamp}.h5" --> unit 02 only
-    - if MODEL_TARGET='mlflow', also persist it on mlflow instead of GCS (for unit 0703 only) --> unit 03 only
     """
 
     timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -66,12 +64,10 @@ def save_model(model: tensorflow.keras.Model = None) -> None:
 
 
 #And now can also load model if needed??
-def load_model(MODEL_TARGET = "drive") -> tensorflow.keras.Model:
+def load_model(MODEL_TARGET = "drive"):
     """
     Return a saved model:
     - locally (latest one in alphabetical order)
-    - or from GCS (most recent one) if MODEL_TARGET=='gcs'  --> for unit 02 only
-    - or from MLFLOW (by "stage") if MODEL_TARGET=='mlflow' --> for unit 03 only
 
     Return None (but do not Raise) if no model found
 
