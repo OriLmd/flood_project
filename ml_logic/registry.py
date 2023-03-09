@@ -5,16 +5,13 @@ import glob
 from tensorflow import keras
 from utils.params import *
 
-#Google drive
-from google.colab import drive
-drive.mount('/content/drive')
-
 def save_results(params: dict, metrics: dict) -> None:
     """
     Persist params & metrics on Google Drive at
     "{LOCAL_REGISTRY_PATH}/params/{current_timestamp}.pickle"
     "{LOCAL_REGISTRY_PATH}/metrics/{current_timestamp}.pickle"
     """
+
     timestamp = time.strftime("%Y%m%d-%H%M%S")
 
     # save params locally
