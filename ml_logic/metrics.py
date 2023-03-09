@@ -100,4 +100,4 @@ def get_baseline_score(dataset):
     y_pred=get_ypred_for_prediction(dataset)
     baseline_score_dice=dice(y_true, y_pred)
     baseline_score_totalerror=total_error(y_true, y_pred)
-    return f'Dice_coef score is {baseline_score_dice.numpy()} and total error score is {baseline_score_totalerror}'
+    return {'baseline_score_dice': baseline_score_dice.numpy(), 'baseline_score_totalerror':baseline_score_totalerror}
