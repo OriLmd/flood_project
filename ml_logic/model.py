@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate, Input
 from tensorflow.keras.models import Model
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLRONPlateau, TensorBoard
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 import os
 
 def conv_block(input, num_filters):
@@ -67,7 +67,7 @@ def fit_model(model, train_dataset, val_dataset, drive_folder_path, batch_size= 
                                        save_weights_only=True,
                                        save_best_only=True)
 
-    reduce_lr = ReduceLRONPlateau(monitor='val_loss', factor=0.1, patience=3, min_lr=0)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, min_lr=0)
 
     tensorboard = TensorBoard(log_dir=os.path.join(drive_folder_path, "models","logs"),
             histogram_freq=1,
