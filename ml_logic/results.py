@@ -33,7 +33,7 @@ def split_tensor_channel(dataset):
     return vv_channel,vh_channel,wb_channel,flood_channel
 
 # Plot function
-def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions, threshold = 0.5):
+def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions, threshold = 0.5, n_img = 8, start_num = 0):
     '''
     This function is ploting the inputs, the targets and the predictions found by the model
     '''
@@ -44,42 +44,42 @@ def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions,
     predictions_binary[predictions_binary > 0] = 1
 
     # Define the fig size, the main title and the rows titles names
-    fig, axes = plt.subplots(nrows=5, ncols=8, figsize=(20, 12))
+    fig, axes = plt.subplots(nrows=5, ncols=n_img, figsize=(20, 14))
     fig.suptitle('Inputs and Predictions', fontsize=16)
 
     row_titles = ['VV polarization', 'VH polarization', 'Water body', 'Targets : Flood', 'Predictions : Flood']
 
-    # Ploting each image (sample of 8 different images)
-    for i, (vv, vh, wb, flood, pred) in enumerate(zip(vv_channel.take(8),
-                                                    vh_channel.take(8),
-                                                    wb_channel.take(8),
-                                                    flood_channel.take(8),
-                                                    predictions_binary)):
+    # Ploting each image (sample of n_img different images)
+    for i, (vv, vh, wb, flood, pred) in enumerate(zip(vv_channel.skip(start_num).take(n_img),
+                                                    vh_channel.skip(start_num).take(n_img),
+                                                    wb_channel.skip(start_num).take(n_img),
+                                                    flood_channel.skip(start_num).take(n_img),
+                                                    predictions_binary[start_num:])):
 
-        axes[0, i].imshow(vv.numpy(), cmap='Greys')
+        axes[0, i].imshow(vv.numpy(), cmap='Greys_r')
         axes[0, i].set_xticks([])
         axes[0, i].set_yticks([])
-        axes[0, i].set_title(f'vv {i+1}', fontsize=12)
+        axes[0, i].set_title(f'vv {i+1+start_num}', fontsize=12)
 
-        axes[1, i].imshow(vh.numpy(), cmap='Greys')
+        axes[1, i].imshow(vh.numpy(), cmap='Greys_r')
         axes[1, i].set_xticks([])
         axes[1, i].set_yticks([])
-        axes[1, i].set_title(f'vh {i+1}', fontsize=12)
+        axes[1, i].set_title(f'vh {i+1+start_num}', fontsize=12)
 
         axes[2, i].imshow(wb.numpy(), cmap='Greys')
         axes[2, i].set_xticks([])
         axes[2, i].set_yticks([])
-        axes[2, i].set_title(f'wb {i+1}', fontsize=12)
+        axes[2, i].set_title(f'wb {i+1+start_num}', fontsize=12)
 
         axes[3, i].imshow(flood.numpy(), cmap='Greys')
         axes[3, i].set_xticks([])
         axes[3, i].set_yticks([])
-        axes[3, i].set_title(f'Flood {i+1}', fontsize=12)
+        axes[3, i].set_title(f'Flood {i+1+start_num}', fontsize=12)
 
         axes[4, i].imshow(pred, cmap='Greys')
         axes[4, i].set_xticks([])
         axes[4, i].set_yticks([])
-        axes[4, i].set_title(f'Prediction {i+1}', fontsize=12)
+        axes[4, i].set_title(f'Prediction {i+1+start_num}', fontsize=12)
 
     # Plot the rows titles
     for i in range(5):
