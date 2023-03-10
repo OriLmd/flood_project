@@ -16,6 +16,27 @@ from ml_logic.load_preprocess import read_four_images, prepare_images, make_conc
 from ml_logic.model import initialize_unet, compile_model, fit_model
 
 ### Main script ###
+def create_cleaned_dataset(csvpath = 'paths_cleaned_images.csv'):
+    ## to read =
+    list_vv_path = []
+    list_vh_path = []
+    list_wb_path = []
+    list_fl_path = []
+# Open the CSV file in read mode
+    with open('paths_cleaned_images.csv', 'r') as file:
+        reader = csv.reader(file)
+        # Skip the header row
+        next(reader)
+        # Read the data rows
+        for row in reader:
+            list_vv_path.append(row[0])
+            list_vh_path.append(row[1])
+            list_wb_path.append(row[2])
+            list_fl_path.append(row[3])
+        dataset = data.Dataset.from_tensor_slices((list_vv_path, list_vh_path, list_wb_path, list_fl_path))
+
+    return dataset
+
 
 def create_dataset():
     # to create a tf dataset with our images
