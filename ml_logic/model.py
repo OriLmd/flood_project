@@ -1,7 +1,7 @@
-from tensorflow import keras
-from keras.layers import Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate, Input
-from keras.models import Model
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.layers import Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate, Input
+from tensorflow.keras.models import Model
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLRONPlateau, TensorBoard
+import os
 
 def conv_block(input, num_filters):
     x = Conv2D(num_filters, 3, padding="same")(input)
@@ -52,21 +52,35 @@ def initialize_unet(input_shape= (256,256,3)):
 
 def compile_model(model, loss, metric):
     # compile model with specified loss and metric
-    model.compile(optimizer='adam',
+    model.compile(optimizer='adam', # default learning rate at 0.001
                   loss = loss,
                   metrics=[metric])
     return model
 
 
-def fit_model(model, train_dataset, val_dataset, batch_size= 32, epochs = 5, patience=3):
+def fit_model(model, train_dataset, val_dataset, drive_folder_path, batch_size= 32, epochs = 100, patience=5,):
 
     es = EarlyStopping(monitor='val_loss', patience = patience, restore_best_weights= True)
     # EarlyStopping(baseline = None) can also be changed;
     # Baseline value for the monitored quantity. Training will stop if the model doesn't show improvement over the baseline.
+    model_checkpoint = ModelCheckpoint(filepath = os.path.join(drive_folder_path, "models","checkpoints"),
+                                       save_weights_only=True,
+                                       save_best_only=True)
 
+    reduce_lr = ReduceLRONPlateau(monitor='val_loss', factor=0.1, patience=3, min_lr=0)
+
+    tensorboard = TensorBoard(log_dir=os.path.join(drive_folder_path, "models","logs"),
+            histogram_freq=1,
+            write_graph=False,
+            write_images=False,
+            write_steps_per_second=False,
+            update_freq='epoch',
+            profile_batch=0,
+            embeddings_freq=0,
+            embeddings_metadata=None)
 
     history = model.fit(train_dataset.batch(batch_size),
-                        callbacks=[es],
+                        callbacks=[es, model_checkpoint, reduce_lr, tensorboard],
                         validation_data = val_dataset.batch(batch_size),
                         epochs = epochs,
                         verbose = 1)
