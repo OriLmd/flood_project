@@ -80,8 +80,9 @@ class TotalError(tf.keras.metrics.Metric):
 # Class to use dice as loss in model
 class DiceLoss(tf.keras.losses.Loss):
 
-    def __init__(self, name='dice_loss'):
+    def __init__(self, name='dice_loss', reduction=tf.keras.losses.Reduction.AUTO):
         super().__init__(name=name)
+        super().__init__(reduction=reduction)
 
     def call(self, y_true, y_pred, smooth=1e-6):
         numerator = 2 * tf.reduce_sum(y_true * y_pred, axis=(1, 2, 3)) + smooth
