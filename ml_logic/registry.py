@@ -1,87 +1,86 @@
-import time
-import os
-import pickle
+# External imports
 import glob
-from tensorflow.keras.models import load_model
-from utils.params import *
+import os
+import time
+import csv
+from colorama import Fore, Style
+from tensorflow.keras import models
 
-def save_results(params: dict, metrics: dict) -> None:
-    """
-    Persist params & metrics on Google Drive at
-    "{LOCAL_REGISTRY_PATH}/params/{current_timestamp}.pickle"
-    "{LOCAL_REGISTRY_PATH}/metrics/{current_timestamp}.pickle"
-    """
+# Internal imports
+from ml_logic import metrics
 
+def save_results(params, metrics, drive_folder_path, model_name = 'unet'):
+    """
+    params = history.params & metrics= history.history
+    Persist params & metrics locally on hard drive at
+    "{drive_folder_path}/params/{model_name}_{current_timestamp}_params.csv"
+    "{drive_folder_path}/metrics/{model_name}_{current_timestamp}_metrics.csv"
+    """
     timestamp = time.strftime("%Y%m%d-%H%M%S")
 
-    # save params locally
+    def save_dict_csv(csv_path, dict_to_save):
+        # Open the CSV file for writing
+        with open(csv_path, mode='w', newline='') as csv_file:
+            writer = csv.writer(csv_file)
+
+            # Write the header row
+            writer.writerow(['key', 'value'])
+
+            # Write each key-value pair in the dictionary to a new row in the CSV file
+            for key, value in dict_to_save.items():
+                writer.writerow([key, value])
+        return None
+
+    # save params
     if params is not None:
-        #we will create a directory for params
-        params_path1 = os.path.join(DRIVE_FOLDER_PATH, "params")
-        isExist = os.path.exists(params_path1)
-        if not isExist:
-            # Create a new directory because it does not exist
-            os.makedirs(params_path1)
+        params_path = os.path.join(drive_folder_path, "params", f"{model_name}_{timestamp}_params" + ".csv")
+        save_dict_csv(params_path, params)
+        print("✅ Params saved")
 
-        params_path = os.path.join(DRIVE_FOLDER_PATH, "params", timestamp + ".pickle")
-        with open(params_path, "wb") as file:
-            pickle.dump(params, file)
-
-    # save metrics locally
+    # save metrics
     if metrics is not None:
-        #we will create a directory for metrics
-        metrics_path1 = os.path.join(DRIVE_FOLDER_PATH, "metrics")
-        isExist = os.path.exists(metrics_path1)
-        if not isExist:
-            # Create a new directory because it does not exist
-            os.makedirs(metrics_path1)
+        metrics_path = os.path.join(drive_folder_path, "metrics", f"{model_name}_{timestamp}_metrics" + ".csv")
+        save_dict_csv(metrics_path, metrics)
+        print("✅ Metrics saved")
 
-        metrics_path = os.path.join(DRIVE_FOLDER_PATH, "metrics", timestamp + ".pickle")
-        with open(metrics_path, "wb") as file:
-            pickle.dump(metrics, file)
-
-    print("✅ Results saved on drive")
-
-
-def save_model(model):
-    """
-    Persist trained model locally on hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
-    """
-
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-
-    #we will create a directory of models
-    model_path1 = os.path.join(DRIVE_FOLDER_PATH, "models")
-    isExist = os.path.exists(model_path1)
-    if not isExist:
-        # Create a new directory because it does not exist
-        os.makedirs(model_path1)
-
-    model_path = os.path.join(DRIVE_FOLDER_PATH, "models", f"{timestamp}.h5")
-    model.save(model_path)
-    print("✅ Model saved on drive")
     return None
 
 
-#And now can also load model if needed??
-def load_model(MODEL_TARGET = "drive"):
+def save_model(model_to_save, drive_folder_path, model_name = 'unet'):
     """
+    Persist trained model locally on hard drive at f"{drive_folder_path}/models/{model_name}_{current_timestamp}.h5"
+    """
+
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+
+    # save model locally
+    model_path = os.path.join(drive_folder_path, "models", f"{model_name}_{timestamp}.h5")
+    model_to_save.save(model_path)
+
+    print("✅ Model saved locally")
+    return None
+
+
+def load_model(drive_folder_path, custom={"DiceLoss": metrics.DiceLoss(), "Dice":metrics.Dice(), 'TotalError':metrics.TotalError()}):
+    """
+    custom is a dictionnary with the custom objects used in the model to be loaded, i.e. loss, metrics...
     Return a saved model:
-    - locally (latest one in alphabetical order)
+    - from drive (latest one in alphabetical order)
 
     Return None (but do not Raise) if no model found
-
     """
-    #print(Fore.BLUE + f"\nLoad latest model from local registry..." + Style.RESET_ALL)
+
     # Get latest model version name by timestamp on disk
-    local_model_directory = os.path.join(DRIVE_FOLDER_PATH, "models")
-    local_model_paths = glob.glob(f"{local_model_directory}/*")
-    if not local_model_paths:
+
+    drive_model_directory = os.path.join(drive_folder_path, "models")
+    drive_model_paths = glob.glob(f"{drive_model_directory}/*")
+    if not drive_model_directory:
+        print("✅ No model find")
         return None
 
-    most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
-    #print(Fore.BLUE + f"\nLoad latest model from disk..." + Style.RESET_ALL)
-    latest_model = load_model(most_recent_model_path_on_disk)
-    print("✅ model loaded from google drive")
+    most_recent_model_path_on_disk = sorted(drive_model_paths)[-1]
+    print(Fore.BLUE + f"\nLoad latest model from disk..." + Style.RESET_ALL)
+    lastest_model = models.load_model(most_recent_model_path_on_disk, custom_objets=custom)
+    print("✅ model loaded from local disk")
 
-    return latest_model
+    return lastest_model
