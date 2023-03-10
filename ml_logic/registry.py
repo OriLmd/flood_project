@@ -3,7 +3,6 @@ import glob
 import os
 import time
 import csv
-from colorama import Fore, Style
 from tensorflow.keras import models
 
 # Internal imports
@@ -79,7 +78,7 @@ def load_model(drive_folder_path, custom={"DiceLoss": metrics.DiceLoss(), "Dice"
         return None
 
     most_recent_model_path_on_disk = sorted(drive_model_paths)[-1]
-    print(Fore.BLUE + f"\nLoad latest model from disk..." + Style.RESET_ALL)
+    print(f"\nLoad latest model from disk...")
     lastest_model = models.load_model(most_recent_model_path_on_disk, custom_objets=custom)
     print("✅ model loaded from local disk")
 
