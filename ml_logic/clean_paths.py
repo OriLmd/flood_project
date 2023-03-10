@@ -2,21 +2,25 @@ import cv2
 import csv
 import numpy as np
 
-def clean_list(path_list, percentage_black = 10, percentage_white = 10):
-    '''This function is used to return a list of paths of images whose sum of pixels
-    is between a certain threshold: i.e. images that are not completely black or white
+def clean_list(path_list, percentage_black = 30, percentage_white = 10):
+    '''This function is used to return a list of paths of images who has fewer
+    than percentage black/white of pixels.
     percentages must be entered as a whole number, not a fraction (ex. 50% = 50 not 0.5).
     Returns a list of paths of images that have the right paths'''
     t_hold_b = 65536*(percentage_black/100)
-    t_hold_black = 0 + t_hold_b
+    #t_hold_black = 0 + t_hold_b
     t_hold_w = 65536*(percentage_white/100)
-    t_hold_white = 65536 - t_hold_w
+    #t_hold_white = 65536 - t_hold_w
     new_path = []
     for path in path_list:
         img_gs = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
         img_gs_norm = img_gs/255
-        pixel_sum = np.sum(img_gs_norm)
-        if pixel_sum > t_hold_black and pixel_sum < t_hold_white:
+        im_nor_w = img_gs_norm[img_gs_norm == 1]
+        im_nor_b = img_gs_norm[img_gs_norm == 0]
+        pixels_w = len(im_nor_w)
+        pixels_b = len(im_nor_b)
+        #pixel_sum = np.sum(img_gs_norm)
+        if pixels_w < t_hold_w and pixels_b < t_hold_b:
             new_path.append(path)
     return new_path
 
