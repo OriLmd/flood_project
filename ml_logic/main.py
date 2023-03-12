@@ -9,6 +9,7 @@ from tensorflow.keras.metrics import MeanIoU
 
 from tensorflow.keras.losses import Reduction
 import numpy as np
+import random
 
 
 #Internal import
@@ -31,6 +32,7 @@ def create_dataset():
 
     return dataset
 
+
 # Update the img_vv_path to match your drive directory path for colab
 def create_dataset_from_drive(drive_path_vv_png='/content/drive/MyDrive/Colab Notebooks/train/train/**/tiles/vv/*_vv.png'):
     # to create a tf dataset with our images
@@ -51,12 +53,12 @@ def create_dataset_from_drive(drive_path_vv_png='/content/drive/MyDrive/Colab No
     shuffle_dataset = dataset.shuffle(buffer_size=33405, seed=1234, name='shuffled_ds_1234') #if we change shuffle, need to be saved dataset.save
     return shuffle_dataset
 
-def load_and_preprocess_data(dataset): # Warning: dataset must be a batch - not the whole dataset
+def load_and_preprocess_data(ds): # Warning: dataset must be a batch - not the whole dataset
     # Apply line by line, the methods read_four_images and prepare_images
-    dataset = dataset.map(read_four_images) # return 4 tensor arrays (256,256,1)
-    dataset = dataset.map(prepare_images) # /255 the 4 tensor arrays
-    dataset = dataset.map(make_concat)
-    return dataset
+    ds = ds.map(read_four_images) # return 4 tensor arrays (256,256,1)
+    ds = ds.map(prepare_images) # /255 the 4 tensor arrays
+    ds = ds.map(make_concat)
+    return ds
 
 
 def train_test_split(dataset, train_size = 0.6, test_size = 0.2, val_size = 0.2, seed=None):
