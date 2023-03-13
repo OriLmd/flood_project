@@ -85,6 +85,7 @@ def root():
     return dict(greeting="Hello")
     # $CHA_END
 
+# Good one
 @app.post("/upload")
 async def receive_image(images: List[UploadFile]=File(...)):
     images_list = []
