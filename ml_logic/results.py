@@ -40,8 +40,8 @@ def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions,
 
     # Apply a threshold to the prediction and apply 0 or 1 if it's water or land
     predictions_binary = predictions.copy()
-    predictions_binary[predictions_binary > threshold] = 0
-    predictions_binary[predictions_binary > 0] = 1
+    predictions_binary[predictions_binary < threshold] = 0
+    predictions_binary[predictions_binary > threshold] = 1
 
     # Define the fig size, the main title and the rows titles names
     fig, axes = plt.subplots(nrows=5, ncols=n_img, figsize=(20, 14))
