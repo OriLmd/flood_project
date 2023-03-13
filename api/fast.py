@@ -1,29 +1,26 @@
+import numpy as np
 import pandas as pd
+import cv2
+import matplotlib.pyplot as plt
 # $WIPE_BEGIN
 
 #from taxifare.ml_logic.registry import load_model
 #from taxifare.ml_logic.preprocessor import preprocess_features
 # $WIPE_END
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, File, UploadFile
+from typing import List
+from starlette.responses import Response
+from tensorflow import convert_to_tensor
+from tensorflow.keras import models
+from PIL import Image
 
-from fastapi import File, UploadFile
+# Internal imports
+from ml_logic import metrics
 
-
-from fastapi.staticfiles import StaticFiles
+# from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@app.get("/upload")
-async def upload():
-    return FileResponse("upload.html")
-
 
 ## Optional, good practice for dev purposes. Allow all middlewares
 #app.add_middleware(
@@ -88,19 +85,85 @@ def root():
     return dict(greeting="Hello")
     # $CHA_END
 
-
 @app.post("/upload")
-def upload(file: UploadFile = File(...)):
+async def receive_image(images: List[UploadFile]=File(...)):
+    images_list = []
+    ### Receiving and decoding the image
+    for img in images:
+        contents = await img.read()
+        nparr = np.fromstring(contents, np.uint8)
+        img_gs = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        img_gs_norm = img_gs/255
 
-    return FileResponse("upload.html")
+        images_list.append(img_gs_norm) # extension depends on which format is sent from Streamlit
 
-    try:
-        contents = file.file.read()
-        with open(file.filename, 'wb') as f:
-            f.write(contents)
-    except Exception:
-        return {"message": "There was an error uploading the file"}
-    finally:
-        file.file.close()
+    for_test = convert_to_tensor(images_list)
+    model_test = models.load_model('/Users/mariottecharles-etienne/code/OriLmd/flood_project/models/first_unet_2000_20230310-143412.h5',
+                                 custom_objects={"DiceLoss": metrics.DiceLoss(), "Dice":metrics.Dice(), 'TotalError':metrics.TotalError()})
+    img_pred = model_test.predict(for_test)
+    im_bytes = cv2.imencode('.png', img_pred[0])[1].tobytes()
 
-    return {"message": f"Successfully uploaded {file.filename}"}
+    return Response(content=im_bytes, media_type="image/png")
+
+# @app.post("/upload")
+# async def receive_image(images: List[UploadFile]=File(...)):
+
+#     images_list = []
+#     ### Receiving and decoding the image
+#     for img in images:
+#         contents = await img.read()
+#         nparr = np.fromstring(contents, np.uint8)
+#         cv2_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR) # type(cv2_img) => numpy.ndarray
+
+#         ### Encoding and responding with the image
+#         images_list.append(cv2.imencode('.png', cv2_img)[1]) # extension depends on which format is sent from Streamlit
+
+#     return Response(content=images_list[1].tobytes(), media_type="image/png")
+
+# @app.post("/upload")
+# async def receive_image(images: List[UploadFile]=File(...)):
+#     images_list = []
+#     ### Receiving and decoding the image
+#     for img in images:
+#         contents = await img.read()
+#         nparr = np.fromstring(contents, np.uint8)
+#         img_gs = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+#         img_gs_norm = img_gs/255
+
+#         images_list.append(img_gs_norm) # extension depends on which format is sent from Streamlit
+
+#     for_test = convert_to_tensor(images_list)
+#     model_test = models.load_model('/Users/mariottecharles-etienne/code/OriLmd/flood_project/models/first_unet_2OOO_v2_20230310-171824.h5',
+#                                  custom_objects={"DiceLoss": metrics.DiceLoss(), "Dice":metrics.Dice(), 'TotalError':metrics.TotalError()})
+#     img_pred = model_test.predict(for_test)
+#     # im = cv2.imencode('.png', img_pred)[1]
+
+#     return Response(content=img_pred[1].tobytes(), media_type="image/png")
+#     # return {'type':str(type(img_pred)),'shape':img_pred.shape}
+
+# @app.post("/upload")
+# async def receive_image(images: List[UploadFile]=File(...)):
+#     images_list = []
+#     ### Receiving and decoding the image
+#     for img in images:
+#         contents = await img.read()
+
+#         nparr = np.fromstring(contents, np.uint8)
+#         cv2_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+#         img_gs_norm = cv2_img/255
+#         #nparr = np.fromstring(contents, np.uint8)
+#         #cv2_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR) # type(cv2_img) => numpy.ndarray
+#         ### Encoding and responding with the image
+#         images_list.append(img_gs_norm) # extension depends on which format is sent from Streamlit
+
+#     for_test = convert_to_tensor(images_list)
+#     model_test = models.load_model("/Users/mariottecharles-etienne/code/OriLmd/flood_project/models/first_unet_2OOO_v2_20230310-171824.h5",
+#                                    custom_objects = {"DiceLoss": metrics.DiceLoss(), "Dice":metrics.Dice(), 'TotalError':metrics.TotalError()})
+
+#     img_pred = model_test.predict(for_test)
+#     #im = Image.fromarray(img_pred)
+#     #im.save('pred.png')
+#     #nparr_pred = np.fromstring(img_pred, np.uint8)
+#     #cv2_img_pred = cv2.imread(nparr_pred, cv2.IMREAD_COLOR)
+#     return Response(content=img_pred[1,:,:,0].tobytes(), media_type="image/png")
+#     #return Response(content=im.tobytes(), media_type="image/png")
