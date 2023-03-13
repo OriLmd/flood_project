@@ -8,16 +8,7 @@ from tensorflow.keras import models
 # Internal imports
 from ml_logic import metrics
 
-def save_results(params, metrics, drive_folder_path, model_name = 'unet'):
-    """
-    params = history.params & metrics= history.history
-    Persist params & metrics locally on hard drive at
-    "{drive_folder_path}/params/{model_name}_{current_timestamp}_params.csv"
-    "{drive_folder_path}/metrics/{model_name}_{current_timestamp}_metrics.csv"
-    """
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-
-    def save_dict_csv(csv_path, dict_to_save):
+def save_dict_csv(csv_path, dict_to_save):
         # Open the CSV file for writing
         with open(csv_path, mode='w', newline='') as csv_file:
             writer = csv.writer(csv_file)
@@ -29,6 +20,15 @@ def save_results(params, metrics, drive_folder_path, model_name = 'unet'):
             for key, value in dict_to_save.items():
                 writer.writerow([key, value])
         return None
+
+def save_results(params, metrics, drive_folder_path, model_name = 'unet'):
+    """
+    params = history.params & metrics= history.history
+    Persist params & metrics locally on hard drive at
+    "{drive_folder_path}/params/{model_name}_{current_timestamp}_params.csv"
+    "{drive_folder_path}/metrics/{model_name}_{current_timestamp}_metrics.csv"
+    """
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
 
     # save params
     if params is not None:
@@ -44,6 +44,21 @@ def save_results(params, metrics, drive_folder_path, model_name = 'unet'):
 
     return None
 
+def save_evaluation(eval_dict, drive_folder_path, model_name = 'unet'):
+    """
+    eval_dict = model_unet.evaluate(test_dataset_preproc.batch(16), return_dict=True)
+    Persist evaluation metrics locally on drive at
+    "{drive_folder_path}/metrics/{model_name}_{current_timestamp}_metrics_eval.csv"
+    """
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+
+    # save metrics
+    if eval_dict is not None:
+        evals_path = os.path.join(drive_folder_path, "metrics", f"{model_name}_{timestamp}_metrics_eval" + ".csv")
+        save_dict_csv(evals_path, eval_dict)
+        print("✅ Evaluation metrics saved")
+
+    return None
 
 def save_model(model_to_save, drive_folder_path, model_name = 'unet'):
     """
@@ -60,7 +75,7 @@ def save_model(model_to_save, drive_folder_path, model_name = 'unet'):
     return None
 
 
-def load_model(drive_folder_path, custom={"DiceLoss": metrics.DiceLoss(), "Dice":metrics.Dice(), 'TotalError':metrics.TotalError()}):
+def load_saved_model(drive_folder_path, custom={"DiceLoss": metrics.DiceLoss(), "Dice":metrics.Dice(), 'TotalError':metrics.TotalError()}):
     """
     custom is a dictionnary with the custom objects used in the model to be loaded, i.e. loss, metrics...
     Return a saved model:
@@ -79,7 +94,7 @@ def load_model(drive_folder_path, custom={"DiceLoss": metrics.DiceLoss(), "Dice"
 
     most_recent_model_path_on_disk = sorted(drive_model_paths)[-1]
     print(f"\nLoad latest model from disk...")
-    lastest_model = models.load_model(most_recent_model_path_on_disk, custom_objets=custom)
+    lastest_model = models.load_model(most_recent_model_path_on_disk, custom_objects=custom)
     print("✅ model loaded from local disk")
 
     return lastest_model

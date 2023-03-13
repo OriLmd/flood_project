@@ -7,3 +7,4 @@ Exploration.ipynb
 *.ipynb
 *.egg-info/
 __pycache__/
+.env

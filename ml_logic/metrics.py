@@ -1,30 +1,35 @@
-from keras import backend as K
 import numpy as np
 import tensorflow as tf
+from ml_logic.results import split_tensor_channel
+from tensorflow_addons.metrics import FBetaScore
+import tensorflow_datasets as tfds
+
 
 from ml_logic import load_preprocess
 
-#recover y_true from dataset
-def get_ytrue_for_prediction(dataset):
-    # batch the dataset into a fixed batch size
-    batch_size = 32
-    batched_dataset = dataset.batch(batch_size)
-    # iterate over the prefetched dataset and convert it into a TensorFlow tensor
-    for batch in batched_dataset.as_numpy_iterator():
-        y_pred = batch[2]  # get the wb_img in the 3rd postion and fl_img int the 4th from prefetched_dataset
-        y_pred_tensor = tf.convert_to_tensor(y_pred)
-    return y_pred_tensor
+#get y_true from dataset
+def extract_flood_from_all(vv,vh,wb,flood):
+    return flood
 
-#recover y_pred from dataset
-def get_ypred_for_prediction(dataset):
-    # batch the dataset into a fixed batch size
-    batch_size = 32
-    batched_dataset = dataset.batch(batch_size)
-    # iterate over the prefetched dataset and convert it into a TensorFlow tensor
-    for batch in batched_dataset.as_numpy_iterator():
-        y_true = batch[3]  # get the wb_img in the 3rd postion and fl_img int the 4th from prefetched_dataset
-        y_true_tensor = tf.convert_to_tensor(y_true)
-    return y_true_tensor
+def get_ytrue(dataset):
+    all_floods = []
+    for flood in tfds.as_numpy(dataset.map(load_preprocess.read_four_images).map(load_preprocess.prepare_images).map(extract_flood_from_all)):
+        all_floods.append(flood)
+    all_floods = np.array(all_floods)
+    return all_floods
+
+
+#get y_pred from dataset
+def extract_wb_from_all(vv,vh,wb,flood):
+    return wb
+
+def get_ypred_baseline(dataset):
+    all_wb = []
+    for wb in tfds.as_numpy(dataset.map(load_preprocess.read_four_images).map(load_preprocess.prepare_images).map(extract_wb_from_all)):
+        all_wb.append(wb)
+    all_wb = np.array(all_wb)
+    return all_wb
+
 
 # Class to use dice as metrics in model
 class Dice(tf.keras.metrics.Metric):
@@ -61,17 +66,24 @@ class TotalError(tf.keras.metrics.Metric):
         super(TotalError, self).__init__(name=name, **kwargs)
         self.FN = self.add_weight(name='false_negatives', initializer='zeros')
         self.FP = self.add_weight(name='false_positives', initializer='zeros')
+
     def update_state(self, y_true, y_pred, sample_weight=None):
         #compute false negative and false postive sum for each image
         y_true = tf.cast(y_true, tf.int32)
         y_pred = tf.cast(y_pred, tf.int32)
         false_neg = y_pred - y_true
         false_pos = y_true - y_pred
-        self.FN.assign_add(tf.reduce_sum(tf.cast(false_neg == -1, tf.float32)) / (256*256))
-        self.FP.assign_add(tf.reduce_sum(tf.cast(false_pos == -1, tf.float32)) / (256*256))
+        self.FN.assign_add(tf.reduce_sum(tf.cast(false_neg == -1, tf.float32)) )
+        self.FP.assign_add(tf.reduce_sum(tf.cast(false_pos == -1, tf.float32)) )
+
     def result(self):
-         # sum of total error over all dataset
-        return self.FN + self.FP
+        # sum of total error over all dataset
+
+        total_errors = self.FN + self.FP
+        # all_y=tf.shape(y_true)[0]
+        return total_errors
+
+
     def reset_state(self):
         #reset value after eache epoch
         self.FN.assign(0.0)
@@ -95,10 +107,10 @@ class DiceLoss(tf.keras.losses.Loss):
 def get_baseline_score(dataset):
     dice=Dice()
     total_error=TotalError()
-    dataset = dataset.map(load_preprocess.read_four_images) # return 4 tensor arrays (256,256,1)
-    dataset = dataset.map(load_preprocess.prepare_images)
-    y_true=get_ytrue_for_prediction(dataset)
-    y_pred=get_ypred_for_prediction(dataset)
+    f2score=FBetaScore(num_classes=1, beta=2.0, threshold=0.5, average='micro')
+    y_true=get_ytrue(dataset)
+    y_pred=get_ypred_baseline(dataset)
     baseline_score_dice=dice(y_true, y_pred)
     baseline_score_totalerror=total_error(y_true, y_pred)
-    return {'baseline_score_dice': baseline_score_dice.numpy(), 'baseline_score_totalerror':baseline_score_totalerror}
+    baseline_score_f2score=f2score(y_true, y_pred)
+    return {'baseline_score_dice': baseline_score_dice.numpy(), 'baseline_score_totalerror':round(baseline_score_totalerror.numpy(),3),'baseline_score_F2score':round(baseline_score_f2score.numpy(),3)}
