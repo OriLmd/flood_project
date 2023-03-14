@@ -3,6 +3,7 @@ import tensorflow as tf
 from ml_logic.results import split_tensor_channel
 from tensorflow_addons.metrics import FBetaScore
 import tensorflow_datasets as tfds
+import tensorflow_addons as tfa
 
 
 from ml_logic import load_preprocess
@@ -108,9 +109,25 @@ def get_baseline_score(dataset):
     dice=Dice()
     total_error=TotalError()
     f2score=FBetaScore(num_classes=1, beta=2.0, threshold=0.5, average='micro')
+    iou_metric = tf.keras.metrics.IoU(num_classes=2, target_class_ids=[1])
+    mean_iou_metric=tf.keras.metrics.MeanIoU(num_classes=2)
+    binaryiou=tf.keras.metrics.BinaryIoU(target_class_ids=[1],threshold=0.5)
+    f1score=tfa.metrics.F1Score(num_classes=2, threshold=0.5, average='micro')
     y_true=get_ytrue(dataset)
     y_pred=get_ypred_baseline(dataset)
     baseline_score_dice=dice(y_true, y_pred)
     baseline_score_totalerror=total_error(y_true, y_pred)
     baseline_score_f2score=f2score(y_true, y_pred)
-    return {'baseline_score_dice': baseline_score_dice.numpy(), 'baseline_score_totalerror':round(baseline_score_totalerror.numpy(),3),'baseline_score_F2score':round(baseline_score_f2score.numpy(),3)}
+    baseline_score_f1score=f1score(y_true, y_pred)
+    baseline_score_binaryiou=binaryiou(y_true, y_pred)
+    baseline_score_iou=iou_metric(y_true, y_pred)
+    baseline_score_mean_iou=mean_iou_metric(y_true, y_pred)
+
+    return {'baseline_score_dice': baseline_score_dice.numpy(),
+            'baseline_score_totalerror':round(baseline_score_totalerror.numpy(),3),
+            'baseline_score_F2score':round(baseline_score_f2score.numpy(),3),
+            'baseline_score_F1score':round(baseline_score_f1score.numpy(),3),
+            'baseline_score_BinaryIoU':round(baseline_score_binaryiou.numpy(),3),
+            'baseline_score_IoU':round(baseline_score_iou.numpy(),3),
+            'baseline_score_Mean_IoU':round(baseline_score_mean_iou.numpy(),3),
+            }
