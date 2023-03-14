@@ -39,7 +39,7 @@ httpx           # HTTP client
 pytest-asyncio  # asynchronous I/O support for pytest
 #image upload
 python-multipart
-PIL
+# PIL  # Commented as returning an error when installing the package 'ERROR: Could not find a version that satisfies the requirement PIL (from floodproject) (from versions: none), ERROR: No matching distribution found for PIL'
 # Streamlit interface
 streamlit
 starlette
