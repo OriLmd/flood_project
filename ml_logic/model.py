@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate, Input
 from tensorflow.keras.models import Model
-
+import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 import os
 
@@ -31,7 +31,7 @@ def decoder_block(input, skip_features, num_filters):
 
 #initialising model
 def initialize_unet(input_shape= (256,256,3)):
-    inputs = Input(input_shape)
+    inputs = Input(input_shape) #inputs[:][:][-1]
 
     s1, p1 = encoder_block(inputs, 32)
     s2, p2 = encoder_block(p1, 64)
@@ -45,7 +45,12 @@ def initialize_unet(input_shape= (256,256,3)):
     d3 = decoder_block(d2, s2, 64)
     d4 = decoder_block(d3, s1, 32)
 
-    outputs = Conv2D(1, 1, padding="same", activation="sigmoid")(d4)
+    outputs = Conv2D(1, 1, padding="same", activation="sigmoid")(d4) # la concat en input
+
+    # concat d4 avec input wb
+    #concat = Concatenate(axis=-1)([d4,tf.expand_dims(inputs[:,:,:,-1],axis=-1)])
+    #outputs = Conv2D(1, 1, padding="same", activation="sigmoid")(concat) # la concat en input
+
 
     model = Model(inputs, outputs, name="U-Net")
     return model
@@ -59,7 +64,7 @@ def compile_model(model, loss, metric):
     return model
 
 
-def fit_model(model, train_dataset, val_dataset, drive_folder_path, batch_size= 32, epochs = 100, patience=5,):
+def fit_model(model, train_dataset, val_dataset, drive_folder_path, batch_size= 32, epochs = 100, patience=10):
 
     es = EarlyStopping(monitor='val_loss', patience = patience, restore_best_weights= True)
     # EarlyStopping(baseline = None) can also be changed;
@@ -68,7 +73,7 @@ def fit_model(model, train_dataset, val_dataset, drive_folder_path, batch_size= 
                                        save_weights_only=True,
                                        save_best_only=True)
 
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, min_lr=0)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=0)
 
     tensorboard = TensorBoard(log_dir=os.path.join(drive_folder_path, "models","logs"),
             histogram_freq=1,

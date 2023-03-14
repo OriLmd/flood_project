@@ -90,8 +90,68 @@ def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions,
     plt.show()
 
 #transformer les résultats de proba en binaire O 1 1 étant l'eau
-def result_into_class(y):
+def result_into_class(y,threshold=0.5):
     class_view = y
-    class_view[class_view >= 0.5] = 1
-    class_view[class_view < 0.5] = 0
+    class_view[class_view >= threshold] = 1
+    class_view[class_view < threshold] = 0
     return class_view
+
+
+# lui mettre deux images (array) renvoie les false positive en bleu, false negative en rouge, true positif en gris foncé et true negatif en gris clair
+def return_fn_fp_image(img_flood,img_river):
+
+    C = np.zeros(shape=(len(img_flood), len(img_flood[0]), 3))
+
+    for i in range (0, img_river.shape[0],1):
+        for j in range(0, img_river.shape[1], 1):
+            # if img_river[i][j] == img_flood[i][j] and img_river[i][j] == 0:
+            #     C[i][j] = 1
+            if img_river[i][j] == 0 and img_flood[i][j]==0:
+                C[i][j][0] = 0.8
+                C[i][j][1] = 0.8
+                C[i][j][2] = 0.8
+            elif img_river[i][j] == 1 and img_flood[i][j]==1:
+                C[i][j][0] = 0.5
+                C[i][j][1] = 0.5
+                C[i][j][2] = 0.5
+            elif img_river[i][j] == 0 and img_flood[i][j]==1:
+                C[i][j][0] = 0.26
+                C[i][j][1] = 0.55
+                C[i][j][2] = 0.96
+
+            else:
+                C[i][j][0] = 1
+                C[i][j][1] = 0
+                C[i][j][2] = 0
+
+    plt.imshow(C)
+
+
+# lui mettre deux images (array) et renvoie l'interprétation des zones inondées en bleu clair, zones de rivière en bleu et zone de terre en vert
+def return_flood_image(img_flood,img_river):
+
+    C = np.zeros(shape=(len(img_flood), len(img_flood[0]), 3))
+
+    for i in range (0, img_river.shape[0],1):
+        for j in range(0, img_river.shape[1], 1):
+            # if img_river[i][j] == img_flood[i][j] and img_river[i][j] == 0:
+            #     C[i][j] = 1
+            if img_river[i][j] == 0 and img_flood[i][j]==0:
+                C[i][j][0] = 0.05
+                C[i][j][1] = 0.5
+                C[i][j][2] = 0.11
+            elif img_river[i][j] == 1 and img_flood[i][j]==1:
+                C[i][j][0] = 0
+                C[i][j][1] = 0
+                C[i][j][2] = 1
+            elif img_river[i][j] == 0 and img_flood[i][j]==1:
+                C[i][j][0] = 0.26
+                C[i][j][1] = 0.55
+                C[i][j][2] = 0.96
+
+            else:
+                C[i][j][0] = 0
+                C[i][j][1] = 0
+                C[i][j][2] = 1
+
+    plt.imshow(C)

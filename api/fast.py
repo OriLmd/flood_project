@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import cv2
 import matplotlib.pyplot as plt
-import io
 from fastapi import FastAPI, File, UploadFile
 from typing import List
 from starlette.responses import Response
@@ -14,16 +13,12 @@ from ml_logic import metrics
 from ml_logic.results import result_into_class
 
 
-
 app = FastAPI()
-
 
 @app.get("/")
 def root():
-    # $CHA_BEGIN
     return dict(greeting="Hello")
-    # $CHA_END
-
+    
 
 @app.post("/upload")
 async def receive_image(files: List[UploadFile]=File(...)):
@@ -39,6 +34,7 @@ async def receive_image(files: List[UploadFile]=File(...)):
 
         images_list.append(img_norm)
 
+
     img_for_test = concat(images_list,axis=-1)
 
     # Load the model
@@ -47,6 +43,7 @@ async def receive_image(files: List[UploadFile]=File(...)):
 
     # Predict
     img_pred = model_test.predict(np.expand_dims(img_for_test,axis=0))
+
 
     #Choose according to threshold
     img_pred_threshold = result_into_class(img_pred)*255
