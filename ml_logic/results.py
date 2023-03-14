@@ -88,3 +88,10 @@ def plot_results(vv_channel, vh_channel, wb_channel, flood_channel, predictions,
     # Plot the whole fig
     plt.tight_layout()
     plt.show()
+
+#transformer les résultats de proba en binaire O 1 1 étant l'eau
+def result_into_class(y):
+    class_view = y
+    class_view[class_view >= 0.5] = 1
+    class_view[class_view < 0.5] = 0
+    return class_view
